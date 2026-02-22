@@ -12,10 +12,9 @@ class HomePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final controller = Get.find<GameController>();
-    final cs = Theme.of(context).colorScheme;
 
     return Scaffold(
-      backgroundColor: cs.surface,
+      backgroundColor: Theme.of(context).colorScheme.surface,
       body: SafeArea(
         child: SingleChildScrollView(
           padding: EdgeInsets.symmetric(horizontal: 24.w, vertical: 16.h),
@@ -23,7 +22,7 @@ class HomePage extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               SizedBox(height: 24.h),
-              _AppHeader(),
+              const _AppHeader(),
               SizedBox(height: 32.h),
               _HighScoreCard(controller: controller),
               SizedBox(height: 24.h),
@@ -41,23 +40,40 @@ class HomePage extends StatelessWidget {
   }
 }
 
+// ────────────────────────────────────────────────────────────────
+// _AppHeader: emoji elasticOut bounce, title fades in with delay
+// ────────────────────────────────────────────────────────────────
 class _AppHeader extends StatelessWidget {
+  const _AppHeader();
+
   @override
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
     return Column(
       children: [
-        Text(
-          '🐍',
-          style: TextStyle(fontSize: 64.sp),
+        // Emoji: scale 0→1 elasticOut 600ms
+        TweenAnimationBuilder<double>(
+          tween: Tween(begin: 0, end: 1),
+          duration: const Duration(milliseconds: 600),
+          curve: Curves.elasticOut,
+          builder: (ctx, v, child) =>
+              Transform.scale(scale: v, child: child),
+          child: Text('🐍', style: TextStyle(fontSize: 64.sp)),
         ),
         SizedBox(height: 12.h),
-        Text(
-          'app_name'.tr,
-          style: TextStyle(
-            fontSize: 30.sp,
-            fontWeight: FontWeight.w900,
-            color: cs.primary,
+        // Title: opacity 0→1, delayed 200ms by using a longer duration
+        TweenAnimationBuilder<double>(
+          tween: Tween(begin: 0, end: 1),
+          duration: const Duration(milliseconds: 700),
+          curve: const Interval(0.28, 1.0, curve: Curves.easeOut),
+          builder: (ctx, v, child) => Opacity(opacity: v, child: child),
+          child: Text(
+            'app_name'.tr,
+            style: TextStyle(
+              fontSize: 30.sp,
+              fontWeight: FontWeight.w900,
+              color: cs.primary,
+            ),
           ),
         ),
         SizedBox(height: 6.h),
@@ -71,6 +87,9 @@ class _AppHeader extends StatelessWidget {
   }
 }
 
+// ────────────────────────────────────────────────────────────────
+// _HighScoreCard: entrance scale 0.8→1.0 + opacity 0→1 (elasticOut)
+// ────────────────────────────────────────────────────────────────
 class _HighScoreCard extends StatelessWidget {
   final GameController controller;
 
@@ -79,80 +98,132 @@ class _HighScoreCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
-    return Container(
-      width: double.infinity,
-      padding: EdgeInsets.symmetric(vertical: 20.h, horizontal: 24.w),
-      decoration: BoxDecoration(
-        gradient: LinearGradient(
-          colors: [
-            cs.primaryContainer,
-            cs.secondaryContainer,
-          ],
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-        ),
-        borderRadius: BorderRadius.circular(20.r),
+
+    return TweenAnimationBuilder<double>(
+      tween: Tween(begin: 0, end: 1),
+      duration: const Duration(milliseconds: 500),
+      curve: Curves.elasticOut,
+      builder: (ctx, v, child) => Transform.scale(
+        scale: 0.8 + 0.2 * v,
+        child: Opacity(opacity: v.clamp(0.0, 1.0), child: child),
       ),
-      child: Column(
-        children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Icon(Icons.emoji_events_rounded, color: const Color(0xFFFFD600), size: 24.r),
-              SizedBox(width: 8.w),
-              Text(
-                'home_best_score'.tr,
+      child: Container(
+        width: double.infinity,
+        padding: EdgeInsets.symmetric(vertical: 20.h, horizontal: 24.w),
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            colors: [
+              cs.primaryContainer,
+              cs.secondaryContainer,
+            ],
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+          ),
+          borderRadius: BorderRadius.circular(20.r),
+        ),
+        child: Column(
+          children: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Icon(Icons.emoji_events_rounded,
+                    color: const Color(0xFFFFD600), size: 24.r),
+                SizedBox(width: 8.w),
+                Text(
+                  'home_best_score'.tr,
+                  style: TextStyle(
+                    fontSize: 14.sp,
+                    fontWeight: FontWeight.w600,
+                    color: cs.onPrimaryContainer,
+                  ),
+                ),
+              ],
+            ),
+            SizedBox(height: 8.h),
+            Obx(
+              () => Text(
+                '${controller.highScore.value}',
                 style: TextStyle(
-                  fontSize: 14.sp,
-                  fontWeight: FontWeight.w600,
+                  fontSize: 48.sp,
+                  fontWeight: FontWeight.w900,
                   color: cs.onPrimaryContainer,
+                  height: 1,
                 ),
               ),
-            ],
-          ),
-          SizedBox(height: 8.h),
-          Obx(
-            () => Text(
-              '${controller.highScore.value}',
-              style: TextStyle(
-                fontSize: 48.sp,
-                fontWeight: FontWeight.w900,
-                color: cs.onPrimaryContainer,
-                height: 1,
-              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
 }
 
-class _PlayButton extends StatelessWidget {
+// ────────────────────────────────────────────────────────────────
+// _PlayButton: continuous pulse animation (scale 1.0↔1.04, 1.5s repeat)
+// ────────────────────────────────────────────────────────────────
+class _PlayButton extends StatefulWidget {
   final GameController controller;
 
   const _PlayButton({required this.controller});
 
   @override
+  State<_PlayButton> createState() => _PlayButtonState();
+}
+
+class _PlayButtonState extends State<_PlayButton>
+    with SingleTickerProviderStateMixin {
+  late final AnimationController _pulseCtrl;
+  late final Animation<double> _pulseAnim;
+
+  @override
+  void initState() {
+    super.initState();
+    _pulseCtrl = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 1500),
+    )..repeat(reverse: true);
+
+    _pulseAnim = Tween<double>(begin: 1.0, end: 1.04).animate(
+      CurvedAnimation(parent: _pulseCtrl, curve: Curves.easeInOut),
+    );
+  }
+
+  @override
+  void dispose() {
+    _pulseCtrl.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
-    return SizedBox(
-      width: double.infinity,
-      height: 56.h,
-      child: FilledButton.icon(
-        onPressed: () {
-          controller.startGame();
-          Get.toNamed(Routes.GAME);
-        },
-        icon: Icon(Icons.play_arrow_rounded, size: 28.r),
-        label: Text(
-          'home_play'.tr,
-          style: TextStyle(fontSize: 18.sp, fontWeight: FontWeight.w700),
+    return AnimatedBuilder(
+      animation: _pulseAnim,
+      builder: (ctx, child) => Transform.scale(
+        scale: _pulseAnim.value,
+        child: child,
+      ),
+      child: SizedBox(
+        width: double.infinity,
+        height: 56.h,
+        child: FilledButton.icon(
+          onPressed: () {
+            widget.controller.startGame();
+            Get.toNamed(Routes.GAME);
+          },
+          icon: Icon(Icons.play_arrow_rounded, size: 28.r),
+          label: Text(
+            'home_play'.tr,
+            style: TextStyle(fontSize: 18.sp, fontWeight: FontWeight.w700),
+          ),
         ),
       ),
     );
   }
 }
 
+// ────────────────────────────────────────────────────────────────
+// _SkinSelector (unchanged)
+// ────────────────────────────────────────────────────────────────
 class _SkinSelector extends StatelessWidget {
   final GameController controller;
 
@@ -268,6 +339,9 @@ class _SkinCard extends StatelessWidget {
   }
 }
 
+// ────────────────────────────────────────────────────────────────
+// _WallModeToggle (unchanged)
+// ────────────────────────────────────────────────────────────────
 class _WallModeToggle extends StatelessWidget {
   final GameController controller;
 
