@@ -9,13 +9,22 @@ import 'package:snake_game_classic/app/pages/game/widgets/d_pad.dart';
 import 'package:snake_game_classic/app/pages/game/widgets/game_board.dart';
 import 'package:snake_game_classic/app/pages/game/widgets/result_dialog.dart';
 
-class GamePage extends GetView<GameController> {
+class GamePage extends StatefulWidget {
   const GamePage({super.key});
 
   @override
-  Widget build(BuildContext context) {
-    // Watch for game status changes
-    ever(controller.status, (status) {
+  State<GamePage> createState() => _GamePageState();
+}
+
+class _GamePageState extends State<GamePage> {
+  late final GameController controller;
+  Worker? _statusWorker;
+
+  @override
+  void initState() {
+    super.initState();
+    controller = Get.find<GameController>();
+    _statusWorker = ever(controller.status, (status) {
       if (status == GameStatus.over) {
         Future.delayed(const Duration(milliseconds: 300), () {
           if (Get.isDialogOpen != true) {
@@ -27,7 +36,16 @@ class GamePage extends GetView<GameController> {
         });
       }
     });
+  }
 
+  @override
+  void dispose() {
+    _statusWorker?.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
     return PopScope(
       canPop: false,
       onPopInvokedWithResult: (didPop, _) {

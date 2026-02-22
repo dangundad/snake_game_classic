@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 
+import 'package:snake_game_classic/app/admob/ads_banner.dart';
+import 'package:snake_game_classic/app/admob/ads_helper.dart';
 import 'package:snake_game_classic/app/controllers/game_controller.dart';
 import 'package:snake_game_classic/app/data/enums/snake_skin.dart';
 import 'package:snake_game_classic/app/routes/app_pages.dart';
@@ -16,24 +18,34 @@ class HomePage extends StatelessWidget {
     return Scaffold(
       backgroundColor: Theme.of(context).colorScheme.surface,
       body: SafeArea(
-        child: SingleChildScrollView(
-          padding: EdgeInsets.symmetric(horizontal: 24.w, vertical: 16.h),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              SizedBox(height: 24.h),
-              const _AppHeader(),
-              SizedBox(height: 32.h),
-              _HighScoreCard(controller: controller),
-              SizedBox(height: 24.h),
-              _PlayButton(controller: controller),
-              SizedBox(height: 32.h),
-              _SkinSelector(controller: controller),
-              SizedBox(height: 24.h),
-              _WallModeToggle(controller: controller),
-              SizedBox(height: 24.h),
-            ],
-          ),
+        child: Column(
+          children: [
+            Expanded(
+              child: SingleChildScrollView(
+                padding: EdgeInsets.symmetric(horizontal: 24.w, vertical: 16.h),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    SizedBox(height: 24.h),
+                    const _AppHeader(),
+                    SizedBox(height: 32.h),
+                    _HighScoreCard(controller: controller),
+                    SizedBox(height: 24.h),
+                    _PlayButton(controller: controller),
+                    SizedBox(height: 32.h),
+                    _SkinSelector(controller: controller),
+                    SizedBox(height: 24.h),
+                    _WallModeToggle(controller: controller),
+                    SizedBox(height: 24.h),
+                  ],
+                ),
+              ),
+            ),
+            BannerAdWidget(
+              adUnitId: AdHelper.bannerAdUnitId,
+              type: AdHelper.banner,
+            ),
+          ],
         ),
       ),
     );
