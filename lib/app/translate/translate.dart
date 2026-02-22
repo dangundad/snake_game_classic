@@ -46,7 +46,28 @@ class Languages extends Translations {
       'send_feedback': 'Send Feedback',
       'more_apps': 'More Apps',
 
-      // ---- App-specific translations ----
+      // App-specific
+      'app_name': 'Snake Game',
+      'home_subtitle': 'Eat food, grow longer, don\'t hit yourself!',
+      'home_play': 'Play',
+      'home_best_score': 'Best Score',
+      'home_wall_mode': 'Wall Mode',
+      'home_wall_mode_on': 'ON – Wall kills you',
+      'home_wall_mode_off': 'OFF – Wrap around',
+      'home_skin': 'Snake Skin',
+      'skin_classic': 'Classic',
+      'skin_neon': 'Neon',
+      'skin_fire': 'Fire',
+      'skin_locked': 'Watch ad to unlock',
+      's_unlocked': '{skin} unlocked!',
+      'game_score': 'Score',
+      'game_best': 'Best',
+      'game_paused': 'Paused',
+      'game_resume': 'Resume',
+      'game_over': 'Game Over',
+      'game_new_best': 'New Best!',
+      'home': 'Home',
+      'play_again': 'Play Again',
     },
     'ko': {
       // 공통
@@ -79,7 +100,28 @@ class Languages extends Translations {
       'send_feedback': '피드백 보내기',
       'more_apps': '더 많은 앱',
 
-      // ---- 앱별 번역 추가 ----
+      // 앱별
+      'app_name': '스네이크 게임',
+      'home_subtitle': '먹이를 먹고, 길어지고, 자신을 피하세요!',
+      'home_play': '게임 시작',
+      'home_best_score': '최고 점수',
+      'home_wall_mode': '벽 모드',
+      'home_wall_mode_on': 'ON – 벽에 닿으면 게임 오버',
+      'home_wall_mode_off': 'OFF – 반대편으로 통과',
+      'home_skin': '스킨 선택',
+      'skin_classic': '클래식',
+      'skin_neon': '네온',
+      'skin_fire': '파이어',
+      'skin_locked': '광고 시청으로 해제',
+      's_unlocked': '{skin} 해제됨!',
+      'game_score': '점수',
+      'game_best': '최고',
+      'game_paused': '일시정지',
+      'game_resume': '재개',
+      'game_over': '게임 오버',
+      'game_new_best': '신기록!',
+      'home': '홈',
+      'play_again': '다시 하기',
     },
   };
 }
