@@ -8,100 +8,200 @@ import 'package:snake_game_classic/app/controllers/game_controller.dart';
 import 'package:snake_game_classic/app/data/enums/snake_skin.dart';
 import 'package:snake_game_classic/app/routes/app_pages.dart';
 
-class HomePage extends StatelessWidget {
+class HomePage extends GetView<GameController> {
   const HomePage({super.key});
 
   @override
   Widget build(BuildContext context) {
-    final controller = Get.find<GameController>();
+    final cs = Theme.of(context).colorScheme;
 
     return Scaffold(
-      backgroundColor: Theme.of(context).colorScheme.surface,
-      body: SafeArea(
-        child: Column(
-          children: [
-            Expanded(
-              child: SingleChildScrollView(
-                padding: EdgeInsets.symmetric(horizontal: 24.w, vertical: 16.h),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: [
-                    SizedBox(height: 24.h),
-                    const _AppHeader(),
-                    SizedBox(height: 32.h),
-                    _HighScoreCard(controller: controller),
-                    SizedBox(height: 24.h),
-                    _PlayButton(controller: controller),
-                    SizedBox(height: 32.h),
-                    _SkinSelector(controller: controller),
-                    SizedBox(height: 24.h),
-                    _WallModeToggle(controller: controller),
-                    SizedBox(height: 24.h),
-                  ],
+      body: Container(
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            colors: [
+              cs.primary.withValues(alpha: 0.16),
+              cs.surface,
+              cs.secondaryContainer.withValues(alpha: 0.22),
+            ],
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+          ),
+        ),
+        child: SafeArea(
+          child: Column(
+            children: [
+              Expanded(
+                child: SingleChildScrollView(
+                  padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 14.h),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      SizedBox(height: 18.h),
+                      const _DecorLayer(),
+                      SizedBox(height: 16.h),
+                      const _AppHeader(),
+                      SizedBox(height: 18.h),
+                      _HighScoreCard(controller: controller),
+                      SizedBox(height: 18.h),
+                      _PlayButton(controller: controller),
+                      SizedBox(height: 16.h),
+                      _WallModeToggle(controller: controller),
+                      SizedBox(height: 18.h),
+                      _SkinSelector(controller: controller),
+                      SizedBox(height: 24.h),
+                    ],
+                  ),
                 ),
               ),
-            ),
-            BannerAdWidget(
-              adUnitId: AdHelper.bannerAdUnitId,
-              type: AdHelper.banner,
-            ),
-          ],
+              Container(
+                color: cs.surface.withValues(alpha: 0.92),
+                child: SafeArea(
+                  top: false,
+                  child: Padding(
+                    padding: EdgeInsets.only(
+                      left: 12.w,
+                      right: 12.w,
+                      top: 8.h,
+                      bottom: 10.h,
+                    ),
+                    child: BannerAdWidget(
+                      adUnitId: AdHelper.bannerAdUnitId,
+                      type: AdHelper.banner,
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );
   }
 }
 
-// ────────────────────────────────────────────────────────────────
-// _AppHeader: emoji elasticOut bounce, title fades in with delay
-// ────────────────────────────────────────────────────────────────
+class _DecorLayer extends StatelessWidget {
+  const _DecorLayer();
+
+  @override
+  Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
+
+    return Container(
+      height: 100.h,
+      margin: EdgeInsets.symmetric(horizontal: 6.w),
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(24.r),
+        gradient: LinearGradient(
+          colors: [
+            cs.primary.withValues(alpha: 0.22),
+            cs.tertiary.withValues(alpha: 0.08),
+            Colors.transparent,
+          ],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+        ),
+      ),
+      child: Stack(
+        children: [
+          Positioned(
+            top: 10.h,
+            right: 16.w,
+            child: Icon(
+              Icons.auto_graph_rounded,
+              size: 40.r,
+              color: cs.primary.withValues(alpha: 0.16),
+            ),
+          ),
+          Positioned(
+            bottom: 12.h,
+            left: 14.w,
+            child: Icon(
+              Icons.bolt_rounded,
+              size: 34.r,
+              color: cs.secondary.withValues(alpha: 0.16),
+            ),
+          ),
+          Positioned.fill(
+            child: Center(
+              child: TweenAnimationBuilder<double>(
+                tween: Tween(begin: 0.96, end: 1.0),
+                duration: const Duration(milliseconds: 900),
+                curve: Curves.easeOutBack,
+                builder: (context, value, child) => Transform.scale(
+                  scale: value,
+                  child: child,
+                ),
+                child: Text(
+                  '🐍',
+                  style: TextStyle(fontSize: 44.sp, color: cs.onSurface.withValues(alpha: 0.7)),
+                ),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
 class _AppHeader extends StatelessWidget {
   const _AppHeader();
 
   @override
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
+
     return Column(
+      crossAxisAlignment: CrossAxisAlignment.center,
       children: [
-        // Emoji: scale 0→1 elasticOut 600ms
         TweenAnimationBuilder<double>(
           tween: Tween(begin: 0, end: 1),
-          duration: const Duration(milliseconds: 600),
-          curve: Curves.elasticOut,
-          builder: (ctx, v, child) =>
-              Transform.scale(scale: v, child: child),
-          child: Text('🐍', style: TextStyle(fontSize: 64.sp)),
-        ),
-        SizedBox(height: 12.h),
-        // Title: opacity 0→1, delayed 200ms by using a longer duration
-        TweenAnimationBuilder<double>(
-          tween: Tween(begin: 0, end: 1),
-          duration: const Duration(milliseconds: 700),
-          curve: const Interval(0.28, 1.0, curve: Curves.easeOut),
-          builder: (ctx, v, child) => Opacity(opacity: v, child: child),
+          duration: const Duration(milliseconds: 680),
+          curve: Curves.easeOutBack,
+          builder: (context, value, child) => Opacity(
+            opacity: value.clamp(0.0, 1.0),
+            child: Transform.translate(
+              offset: Offset(0, (1 - value) * 12),
+              child: child,
+            ),
+          ),
           child: Text(
             'app_name'.tr,
             style: TextStyle(
               fontSize: 30.sp,
               fontWeight: FontWeight.w900,
-              color: cs.primary,
+              color: cs.onSurface,
+              letterSpacing: 0.6,
             ),
           ),
         ),
         SizedBox(height: 6.h),
-        Text(
-          'home_subtitle'.tr,
-          style: TextStyle(fontSize: 13.sp, color: cs.onSurfaceVariant),
-          textAlign: TextAlign.center,
+        TweenAnimationBuilder<double>(
+          tween: Tween(begin: 0.88, end: 1),
+          duration: const Duration(milliseconds: 700),
+          curve: const Interval(0.35, 1, curve: Curves.easeOut),
+          builder: (ctx, value, child) => Opacity(
+            opacity: value.clamp(0.0, 1.0),
+            child: Transform.translate(
+              offset: Offset(0, (1 - value) * 8),
+              child: child,
+            ),
+          ),
+          child: Text(
+            'home_subtitle'.tr,
+            style: TextStyle(
+              fontSize: 13.sp,
+              color: cs.onSurfaceVariant,
+            ),
+            textAlign: TextAlign.center,
+          ),
         ),
       ],
     );
   }
 }
 
-// ────────────────────────────────────────────────────────────────
-// _HighScoreCard: entrance scale 0.8→1.0 + opacity 0→1 (elasticOut)
-// ────────────────────────────────────────────────────────────────
 class _HighScoreCard extends StatelessWidget {
   final GameController controller;
 
@@ -114,14 +214,14 @@ class _HighScoreCard extends StatelessWidget {
     return TweenAnimationBuilder<double>(
       tween: Tween(begin: 0, end: 1),
       duration: const Duration(milliseconds: 500),
-      curve: Curves.elasticOut,
-      builder: (ctx, v, child) => Transform.scale(
-        scale: 0.8 + 0.2 * v,
-        child: Opacity(opacity: v.clamp(0.0, 1.0), child: child),
+      curve: Curves.easeOutCubic,
+      builder: (ctx, value, child) => Transform.scale(
+        scale: 0.8 + (0.2 * value),
+        child: Opacity(opacity: value.clamp(0.0, 1.0), child: child),
       ),
       child: Container(
         width: double.infinity,
-        padding: EdgeInsets.symmetric(vertical: 20.h, horizontal: 24.w),
+        padding: EdgeInsets.symmetric(vertical: 18.h, horizontal: 22.w),
         decoration: BoxDecoration(
           gradient: LinearGradient(
             colors: [
@@ -132,14 +232,20 @@ class _HighScoreCard extends StatelessWidget {
             end: Alignment.bottomRight,
           ),
           borderRadius: BorderRadius.circular(20.r),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withValues(alpha: 0.18),
+              blurRadius: 18,
+              offset: const Offset(0, 10),
+            ),
+          ],
         ),
         child: Column(
           children: [
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Icon(Icons.emoji_events_rounded,
-                    color: const Color(0xFFFFD600), size: 24.r),
+                Icon(Icons.emoji_events_rounded, color: const Color(0xFFFFD600), size: 24.r),
                 SizedBox(width: 8.w),
                 Text(
                   'home_best_score'.tr,
@@ -157,9 +263,12 @@ class _HighScoreCard extends StatelessWidget {
                 '${controller.highScore.value}',
                 style: TextStyle(
                   fontSize: 48.sp,
+                  height: 1,
                   fontWeight: FontWeight.w900,
                   color: cs.onPrimaryContainer,
-                  height: 1,
+                  shadows: const [
+                    Shadow(color: Color(0x26000000), blurRadius: 10),
+                  ],
                 ),
               ),
             ),
@@ -170,9 +279,6 @@ class _HighScoreCard extends StatelessWidget {
   }
 }
 
-// ────────────────────────────────────────────────────────────────
-// _PlayButton: continuous pulse animation (scale 1.0↔1.04, 1.5s repeat)
-// ────────────────────────────────────────────────────────────────
 class _PlayButton extends StatefulWidget {
   final GameController controller;
 
@@ -182,8 +288,7 @@ class _PlayButton extends StatefulWidget {
   State<_PlayButton> createState() => _PlayButtonState();
 }
 
-class _PlayButtonState extends State<_PlayButton>
-    with SingleTickerProviderStateMixin {
+class _PlayButtonState extends State<_PlayButton> with SingleTickerProviderStateMixin {
   late final AnimationController _pulseCtrl;
   late final Animation<double> _pulseAnim;
 
@@ -210,22 +315,38 @@ class _PlayButtonState extends State<_PlayButton>
   Widget build(BuildContext context) {
     return AnimatedBuilder(
       animation: _pulseAnim,
-      builder: (ctx, child) => Transform.scale(
+      builder: (context, child) => Transform.scale(
         scale: _pulseAnim.value,
         child: child,
       ),
       child: SizedBox(
         width: double.infinity,
         height: 56.h,
-        child: FilledButton.icon(
-          onPressed: () {
-            widget.controller.startGame();
-            Get.toNamed(Routes.GAME);
-          },
-          icon: Icon(Icons.play_arrow_rounded, size: 28.r),
-          label: Text(
-            'home_play'.tr,
-            style: TextStyle(fontSize: 18.sp, fontWeight: FontWeight.w700),
+        child: DecoratedBox(
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(16.r),
+            boxShadow: [
+              BoxShadow(
+                color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.32),
+                blurRadius: 18,
+                offset: const Offset(0, 8),
+              ),
+            ],
+          ),
+          child: FilledButton.icon(
+            style: FilledButton.styleFrom(
+              minimumSize: Size.fromHeight(56.h),
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16.r)),
+            ),
+            onPressed: () {
+              widget.controller.startGame();
+              Get.toNamed(Routes.GAME);
+            },
+            icon: Icon(Icons.rocket_launch_rounded, size: 28.r),
+            label: Text(
+              'home_play'.tr,
+              style: TextStyle(fontSize: 18.sp, fontWeight: FontWeight.w700),
+            ),
           ),
         ),
       ),
@@ -233,9 +354,6 @@ class _PlayButtonState extends State<_PlayButton>
   }
 }
 
-// ────────────────────────────────────────────────────────────────
-// _SkinSelector (unchanged)
-// ────────────────────────────────────────────────────────────────
 class _SkinSelector extends StatelessWidget {
   final GameController controller;
 
@@ -244,6 +362,7 @@ class _SkinSelector extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -255,14 +374,13 @@ class _SkinSelector extends StatelessWidget {
             color: cs.onSurface,
           ),
         ),
-        SizedBox(height: 12.h),
+        SizedBox(height: 10.h),
         Row(
           children: SnakeSkin.values.map((skin) {
+            final isLast = skin == SnakeSkin.values.last;
             return Expanded(
               child: Padding(
-                padding: EdgeInsets.only(
-                  right: skin == SnakeSkin.values.last ? 0 : 8.w,
-                ),
+                padding: EdgeInsets.only(right: isLast ? 0 : 8.w),
                 child: _SkinCard(skin: skin, controller: controller),
               ),
             );
@@ -282,6 +400,7 @@ class _SkinCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
+
     return Obx(() {
       final isSelected = controller.skin.value == skin;
       final isUnlocked = controller.isSkinUnlocked(skin);
@@ -295,29 +414,38 @@ class _SkinCard extends StatelessWidget {
           }
         },
         child: AnimatedContainer(
-          duration: const Duration(milliseconds: 200),
+          duration: const Duration(milliseconds: 220),
           padding: EdgeInsets.symmetric(vertical: 12.h, horizontal: 8.w),
           decoration: BoxDecoration(
-            color: isSelected ? cs.primaryContainer : cs.surfaceContainerHigh,
-            borderRadius: BorderRadius.circular(12.r),
+            color: isSelected ? cs.primaryContainer : cs.surfaceContainerHigh.withValues(alpha: 0.72),
+            borderRadius: BorderRadius.circular(16.r),
             border: Border.all(
               color: isSelected ? cs.primary : Colors.transparent,
               width: 2,
             ),
+            boxShadow: isSelected
+                ? [
+                    BoxShadow(
+                      color: cs.primary.withValues(alpha: 0.22),
+                      blurRadius: 12,
+                      spreadRadius: 0.3,
+                    ),
+                  ]
+                : null,
           ),
           child: Column(
             children: [
               Container(
-                width: 36.r,
-                height: 36.r,
+                width: 44.r,
+                height: 44.r,
                 decoration: BoxDecoration(
                   color: skin.bgColor,
-                  borderRadius: BorderRadius.circular(8.r),
+                  borderRadius: BorderRadius.circular(12.r),
                 ),
                 child: Center(
                   child: Container(
-                    width: 20.r,
-                    height: 12.r,
+                    width: 22.r,
+                    height: 14.r,
                     decoration: BoxDecoration(
                       color: skin.bodyColor,
                       borderRadius: BorderRadius.circular(4.r),
@@ -325,7 +453,7 @@ class _SkinCard extends StatelessWidget {
                   ),
                 ),
               ),
-              SizedBox(height: 6.h),
+              SizedBox(height: 8.h),
               Text(
                 skin.labelKey.tr,
                 style: TextStyle(
@@ -337,10 +465,25 @@ class _SkinCard extends StatelessWidget {
               ),
               if (!isUnlocked) ...[
                 SizedBox(height: 4.h),
-                Icon(
-                  Icons.lock_rounded,
-                  size: 14.r,
-                  color: cs.onSurfaceVariant,
+                Container(
+                  padding: EdgeInsets.symmetric(horizontal: 6.w, vertical: 2.h),
+                  decoration: BoxDecoration(
+                    color: cs.surfaceContainerHighest,
+                    borderRadius: BorderRadius.circular(10.r),
+                  ),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Icon(Icons.lock_rounded, size: 12.r, color: cs.onSurfaceVariant),
+                      SizedBox(width: 3.w),
+                      Text(
+                        'skin_locked'.tr,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: TextStyle(fontSize: 8.sp, color: cs.onSurfaceVariant),
+                      ),
+                    ],
+                  ),
                 ),
               ],
             ],
@@ -351,9 +494,6 @@ class _SkinCard extends StatelessWidget {
   }
 }
 
-// ────────────────────────────────────────────────────────────────
-// _WallModeToggle (unchanged)
-// ────────────────────────────────────────────────────────────────
 class _WallModeToggle extends StatelessWidget {
   final GameController controller;
 
@@ -362,48 +502,49 @@ class _WallModeToggle extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
-    return Container(
-      padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 12.h),
-      decoration: BoxDecoration(
-        color: cs.surfaceContainerHigh,
-        borderRadius: BorderRadius.circular(12.r),
-      ),
-      child: Obx(
-        () => Row(
-          children: [
-            Icon(Icons.crop_rounded, color: cs.primary, size: 22.r),
-            SizedBox(width: 12.w),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    'home_wall_mode'.tr,
-                    style: TextStyle(
-                      fontSize: 14.sp,
-                      fontWeight: FontWeight.w600,
-                      color: cs.onSurface,
-                    ),
+    return Obx(
+      () {
+        final enabled = controller.wallMode.value;
+
+        return Container(
+          decoration: BoxDecoration(
+            color: cs.surfaceContainerHigh,
+            borderRadius: BorderRadius.circular(18.r),
+            border: Border.all(
+              color: enabled ? cs.primary : Colors.transparent,
+              width: 1.5,
+            ),
+          ),
+          padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 2.h),
+          child: SwitchListTile(
+            contentPadding: EdgeInsets.zero,
+            value: enabled,
+            onChanged: (_) => controller.toggleWallMode(),
+            title: Row(
+              children: [
+                Icon(Icons.crop_free_rounded, color: cs.primary, size: 22.r),
+                SizedBox(width: 10.w),
+                Text(
+                  'home_wall_mode'.tr,
+                  style: TextStyle(
+                    fontSize: 15.sp,
+                    fontWeight: FontWeight.w700,
+                    color: cs.onSurface,
                   ),
-                  Text(
-                    controller.wallMode.value
-                        ? 'home_wall_mode_on'.tr
-                        : 'home_wall_mode_off'.tr,
-                    style: TextStyle(
-                      fontSize: 11.sp,
-                      color: cs.onSurfaceVariant,
-                    ),
-                  ),
-                ],
+                ),
+              ],
+            ),
+            subtitle: Padding(
+              padding: EdgeInsets.only(top: 2.h, right: 4.w),
+              child: Text(
+                enabled ? 'home_wall_mode_on'.tr : 'home_wall_mode_off'.tr,
+                style: TextStyle(fontSize: 11.sp, color: cs.onSurfaceVariant),
               ),
             ),
-            Switch(
-              value: controller.wallMode.value,
-              onChanged: (_) => controller.toggleWallMode(),
-            ),
-          ],
-        ),
-      ),
+            activeThumbColor: cs.primary,
+          ),
+        );
+      },
     );
   }
 }

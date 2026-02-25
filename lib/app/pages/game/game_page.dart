@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 
@@ -9,22 +9,31 @@ import 'package:snake_game_classic/app/pages/game/widgets/d_pad.dart';
 import 'package:snake_game_classic/app/pages/game/widgets/game_board.dart';
 import 'package:snake_game_classic/app/pages/game/widgets/result_dialog.dart';
 
-class GamePage extends StatefulWidget {
+class GamePage extends GetView<GameController> {
   const GamePage({super.key});
 
   @override
-  State<GamePage> createState() => _GamePageState();
+  Widget build(BuildContext context) {
+    return _GamePageContent(controller: controller);
+  }
 }
 
-class _GamePageState extends State<GamePage> {
-  late final GameController controller;
+class _GamePageContent extends StatefulWidget {
+  final GameController controller;
+
+  const _GamePageContent({required this.controller});
+
+  @override
+  State<_GamePageContent> createState() => _GamePageContentState();
+}
+
+class _GamePageContentState extends State<_GamePageContent> {
   Worker? _statusWorker;
 
   @override
   void initState() {
     super.initState();
-    controller = Get.find<GameController>();
-    _statusWorker = ever(controller.status, (status) {
+    _statusWorker = ever(widget.controller.status, (status) {
       if (status == GameStatus.over) {
         Future.delayed(const Duration(milliseconds: 300), () {
           if (Get.isDialogOpen != true) {
@@ -50,20 +59,20 @@ class _GamePageState extends State<GamePage> {
       canPop: false,
       onPopInvokedWithResult: (didPop, _) {
         if (didPop) return;
-        if (controller.status.value == GameStatus.playing) {
-          controller.pauseGame();
+        if (widget.controller.status.value == GameStatus.playing) {
+          widget.controller.pauseGame();
           Get.dialog(const PauseDialog(), barrierDismissible: false);
         } else {
           Get.back();
         }
       },
       child: Scaffold(
-        backgroundColor: controller.skin.value.bgColor,
+        backgroundColor: widget.controller.skin.value.bgColor,
         appBar: _buildAppBar(context),
         body: SafeArea(
           child: Column(
             children: [
-              _ScoreBar(controller: controller),
+              _ScoreBar(controller: widget.controller),
               Expanded(child: _buildGameArea()),
               _buildControls(),
             ],
@@ -75,7 +84,7 @@ class _GamePageState extends State<GamePage> {
 
   PreferredSizeWidget _buildAppBar(BuildContext context) {
     return AppBar(
-      backgroundColor: controller.skin.value.bgColor,
+      backgroundColor: widget.controller.skin.value.bgColor,
       foregroundColor: Colors.white,
       title: Obx(
         () => Text(
@@ -89,18 +98,18 @@ class _GamePageState extends State<GamePage> {
       ),
       actions: [
         Obx(() {
-          final isPlaying = controller.status.value == GameStatus.playing;
+          final isPlaying = widget.controller.status.value == GameStatus.playing;
           return IconButton(
             icon: Icon(
               isPlaying ? Icons.pause_rounded : Icons.play_arrow_rounded,
               color: Colors.white,
             ),
             onPressed: () {
-              if (controller.status.value == GameStatus.playing) {
-                controller.pauseGame();
+              if (widget.controller.status.value == GameStatus.playing) {
+                widget.controller.pauseGame();
                 Get.dialog(const PauseDialog(), barrierDismissible: false);
-              } else if (controller.status.value == GameStatus.paused) {
-                controller.resumeGame();
+              } else if (widget.controller.status.value == GameStatus.paused) {
+                widget.controller.resumeGame();
               }
             },
           );
@@ -113,16 +122,16 @@ class _GamePageState extends State<GamePage> {
     return GestureDetector(
       onVerticalDragEnd: (details) {
         if ((details.primaryVelocity ?? 0) < -100) {
-          controller.changeDirection(Direction.up);
+          widget.controller.changeDirection(Direction.up);
         } else if ((details.primaryVelocity ?? 0) > 100) {
-          controller.changeDirection(Direction.down);
+          widget.controller.changeDirection(Direction.down);
         }
       },
       onHorizontalDragEnd: (details) {
         if ((details.primaryVelocity ?? 0) < -100) {
-          controller.changeDirection(Direction.left);
+          widget.controller.changeDirection(Direction.left);
         } else if ((details.primaryVelocity ?? 0) > 100) {
-          controller.changeDirection(Direction.right);
+          widget.controller.changeDirection(Direction.right);
         }
       },
       child: Padding(
@@ -131,7 +140,7 @@ class _GamePageState extends State<GamePage> {
           aspectRatio: GameController.cols / GameController.rows,
           child: ClipRRect(
             borderRadius: BorderRadius.circular(8.r),
-            child: GameBoard(controller: controller),
+            child: GameBoard(controller: widget.controller),
           ),
         ),
       ),
@@ -141,7 +150,7 @@ class _GamePageState extends State<GamePage> {
   Widget _buildControls() {
     return Padding(
       padding: EdgeInsets.only(bottom: 16.h, top: 8.h),
-      child: DPad(onDirection: controller.changeDirection),
+      child: DPad(onDirection: widget.controller.changeDirection),
     );
   }
 }
@@ -168,7 +177,9 @@ class _ScoreBar extends StatelessWidget {
           ),
           SizedBox(width: 8.w),
           Obx(() {
-            if (!controller.hasGoldenFood.value) return const SizedBox.shrink();
+            if (!controller.hasGoldenFood.value) {
+              return const SizedBox.shrink();
+            }
             return _GoldenFoodTimer(seconds: controller.goldenFoodSecondsLeft.value);
           }),
           SizedBox(width: 8.w),
@@ -247,7 +258,7 @@ class _GoldenFoodTimer extends StatelessWidget {
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Text('⭐', style: TextStyle(fontSize: 12.sp)),
+          Text('⏱', style: TextStyle(fontSize: 12.sp)),
           SizedBox(width: 4.w),
           Text(
             '${seconds}s',

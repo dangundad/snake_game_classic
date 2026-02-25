@@ -1,19 +1,32 @@
-// ================================================
+﻿// ================================================
 // DangunDad Flutter App - app_binding.dart Template
 // ================================================
-// snake_game_classic 치환 후 사용
-// mbti_pro 프로덕션 패턴 기반
+// snake_game_classic 移섑솚 ???ъ슜
+// mbti_pro ?꾨줈?뺤뀡 ?⑦꽩 湲곕컲
 
 import 'package:get/get.dart';
-
 import 'package:snake_game_classic/app/controllers/game_controller.dart';
 import 'package:snake_game_classic/app/controllers/home_controller.dart';
 import 'package:snake_game_classic/app/controllers/setting_controller.dart';
 import 'package:snake_game_classic/app/services/hive_service.dart';
+import 'package:snake_game_classic/app/services/activity_log_service.dart';
+import 'package:snake_game_classic/app/controllers/history_controller.dart';
+import 'package:snake_game_classic/app/controllers/stats_controller.dart';
+
+import 'package:snake_game_classic/app/services/purchase_service.dart';
+import 'package:snake_game_classic/app/controllers/premium_controller.dart';
 
 class AppBinding implements Bindings {
   @override
   void dependencies() {
+    if (!Get.isRegistered<PurchaseService>()) {
+      Get.put(PurchaseService(), permanent: true);
+    }
+
+    if (!Get.isRegistered<PremiumController>()) {
+      Get.lazyPut(() => PremiumController());
+    }
+
     if (!Get.isRegistered<HiveService>()) {
       Get.put(HiveService(), permanent: true);
     }
@@ -27,5 +40,15 @@ class AppBinding implements Bindings {
     }
 
     Get.lazyPut(() => HomeController(), fenix: true);
-  }
+  
+if (!Get.isRegistered<ActivityLogService>()) {
+      Get.put(ActivityLogService(), permanent: true);
+    }
+if (!Get.isRegistered<HistoryController>()) {
+      Get.lazyPut(() => HistoryController());
+    }
+if (!Get.isRegistered<StatsController>()) {
+      Get.lazyPut(() => StatsController());
+    }}
 }
+
