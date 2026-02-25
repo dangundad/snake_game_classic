@@ -104,6 +104,8 @@ class Languages extends Translations {
       'game_new_best': 'New Best!',
       'home': 'Home',
       'play_again': 'Play Again',
+      'home_pts': 'PTS',
+      'home_no_score': 'Play your first game!',
     },
     'ko': {
       // 공통
@@ -191,6 +193,8 @@ class Languages extends Translations {
       'game_new_best': '신기록!',
       'home': '홈',
       'play_again': '다시 하기',
+      'home_pts': '점',
+      'home_no_score': '첫 게임을 시작해보세요!',
     },
   };
 }

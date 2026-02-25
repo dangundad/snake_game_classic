@@ -221,12 +221,12 @@ class _HighScoreCard extends StatelessWidget {
       ),
       child: Container(
         width: double.infinity,
-        padding: EdgeInsets.symmetric(vertical: 18.h, horizontal: 22.w),
+        padding: EdgeInsets.symmetric(vertical: 20.h, horizontal: 22.w),
         decoration: BoxDecoration(
           gradient: LinearGradient(
             colors: [
-              cs.primaryContainer,
-              cs.secondaryContainer,
+              cs.primary,
+              cs.tertiary,
             ],
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
@@ -234,46 +234,88 @@ class _HighScoreCard extends StatelessWidget {
           borderRadius: BorderRadius.circular(20.r),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withValues(alpha: 0.18),
-              blurRadius: 18,
-              offset: const Offset(0, 10),
+              color: cs.primary.withValues(alpha: 0.38),
+              blurRadius: 20,
+              offset: const Offset(0, 8),
             ),
           ],
         ),
-        child: Column(
-          children: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Icon(Icons.emoji_events_rounded, color: const Color(0xFFFFD600), size: 24.r),
-                SizedBox(width: 8.w),
+        child: Obx(() {
+          final score = controller.highScore.value;
+          final hasScore = score > 0;
+
+          return Column(
+            children: [
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(
+                    Icons.emoji_events_rounded,
+                    color: const Color(0xFFFFD600),
+                    size: 26.r,
+                  ),
+                  SizedBox(width: 8.w),
+                  Text(
+                    'home_best_score'.tr,
+                    style: TextStyle(
+                      fontSize: 14.sp,
+                      fontWeight: FontWeight.w700,
+                      color: cs.onPrimary.withValues(alpha: 0.9),
+                      letterSpacing: 0.4,
+                    ),
+                  ),
+                ],
+              ),
+              SizedBox(height: 10.h),
+              if (hasScore) ...[
                 Text(
-                  'home_best_score'.tr,
+                  '$score',
+                  style: TextStyle(
+                    fontSize: 54.sp,
+                    height: 1,
+                    fontWeight: FontWeight.w900,
+                    color: cs.onPrimary,
+                    shadows: const [
+                      Shadow(color: Color(0x40000000), blurRadius: 12),
+                    ],
+                  ),
+                ),
+                SizedBox(height: 6.h),
+                Container(
+                  padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 4.h),
+                  decoration: BoxDecoration(
+                    color: cs.onPrimary.withValues(alpha: 0.15),
+                    borderRadius: BorderRadius.circular(20.r),
+                  ),
+                  child: Text(
+                    'home_pts'.tr,
+                    style: TextStyle(
+                      fontSize: 11.sp,
+                      fontWeight: FontWeight.w600,
+                      color: cs.onPrimary.withValues(alpha: 0.85),
+                      letterSpacing: 1.2,
+                    ),
+                  ),
+                ),
+              ] else ...[
+                SizedBox(height: 4.h),
+                Icon(
+                  Icons.sports_esports_rounded,
+                  size: 36.r,
+                  color: cs.onPrimary.withValues(alpha: 0.45),
+                ),
+                SizedBox(height: 6.h),
+                Text(
+                  'home_no_score'.tr,
                   style: TextStyle(
                     fontSize: 14.sp,
-                    fontWeight: FontWeight.w600,
-                    color: cs.onPrimaryContainer,
+                    color: cs.onPrimary.withValues(alpha: 0.65),
                   ),
                 ),
               ],
-            ),
-            SizedBox(height: 8.h),
-            Obx(
-              () => Text(
-                '${controller.highScore.value}',
-                style: TextStyle(
-                  fontSize: 48.sp,
-                  height: 1,
-                  fontWeight: FontWeight.w900,
-                  color: cs.onPrimaryContainer,
-                  shadows: const [
-                    Shadow(color: Color(0x26000000), blurRadius: 10),
-                  ],
-                ),
-              ),
-            ),
-          ],
-        ),
+            ],
+          );
+        }),
       ),
     );
   }
@@ -313,39 +355,56 @@ class _PlayButtonState extends State<_PlayButton> with SingleTickerProviderState
 
   @override
   Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
+
     return AnimatedBuilder(
       animation: _pulseAnim,
       builder: (context, child) => Transform.scale(
         scale: _pulseAnim.value,
         child: child,
       ),
-      child: SizedBox(
+      child: Container(
         width: double.infinity,
-        height: 56.h,
-        child: DecoratedBox(
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(16.r),
-            boxShadow: [
-              BoxShadow(
-                color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.32),
-                blurRadius: 18,
-                offset: const Offset(0, 8),
-              ),
-            ],
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            colors: [cs.primary, cs.tertiary],
+            begin: Alignment.centerLeft,
+            end: Alignment.centerRight,
           ),
-          child: FilledButton.icon(
-            style: FilledButton.styleFrom(
-              minimumSize: Size.fromHeight(56.h),
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16.r)),
+          borderRadius: BorderRadius.circular(16.r),
+          boxShadow: [
+            BoxShadow(
+              color: cs.primary.withValues(alpha: 0.35),
+              blurRadius: 14,
+              offset: const Offset(0, 5),
             ),
-            onPressed: () {
+          ],
+        ),
+        child: Material(
+          color: Colors.transparent,
+          child: InkWell(
+            borderRadius: BorderRadius.circular(16.r),
+            onTap: () {
               widget.controller.startGame();
               Get.toNamed(Routes.GAME);
             },
-            icon: Icon(Icons.rocket_launch_rounded, size: 28.r),
-            label: Text(
-              'home_play'.tr,
-              style: TextStyle(fontSize: 18.sp, fontWeight: FontWeight.w700),
+            child: Padding(
+              padding: EdgeInsets.symmetric(vertical: 16.h),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(Icons.rocket_launch_rounded, size: 28.r, color: cs.onPrimary),
+                  SizedBox(width: 10.w),
+                  Text(
+                    'home_play'.tr,
+                    style: TextStyle(
+                      fontSize: 18.sp,
+                      fontWeight: FontWeight.w700,
+                      color: cs.onPrimary,
+                    ),
+                  ),
+                ],
+              ),
             ),
           ),
         ),
