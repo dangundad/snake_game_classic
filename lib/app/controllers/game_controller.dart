@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:math';
 
+import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 
@@ -9,6 +10,7 @@ import 'package:snake_game_classic/app/admob/ads_rewarded.dart';
 import 'package:snake_game_classic/app/data/enums/direction.dart';
 import 'package:snake_game_classic/app/data/enums/game_status.dart';
 import 'package:snake_game_classic/app/data/enums/snake_skin.dart';
+import 'package:snake_game_classic/app/data/models/snake_record.dart';
 import 'package:snake_game_classic/app/services/hive_service.dart';
 
 class SnakePoint {
@@ -55,6 +57,7 @@ class GameController extends GetxController {
   final hasGoldenFood = false.obs;
   final goldenFoodSecondsLeft = 0.obs;
   final isNewBest = false.obs;
+  final showConfetti = false.obs;
 
   // Internal game state
   final List<SnakePoint> snake = [];
@@ -230,12 +233,14 @@ class GameController extends GetxController {
       ate = true;
       _foodsEaten++;
       score.value += _normalFoodScore;
+      HapticFeedback.lightImpact();
       _spawnFood();
       _maybeSpawnGoldenFood();
       _adjustSpeed();
     } else if (_goldenFood != null && newHead == _goldenFood) {
       ate = true;
       score.value += _goldenFoodScore;
+      HapticFeedback.mediumImpact();
       _goldenFood = null;
       hasGoldenFood.value = false;
       _goldenFoodCountdown?.cancel();
@@ -246,6 +251,10 @@ class GameController extends GetxController {
 
     if (score.value > highScore.value) {
       highScore.value = score.value;
+      if (!isNewBest.value) {
+        HapticFeedback.mediumImpact();
+        showConfetti.value = true;
+      }
       isNewBest.value = true;
     }
 
@@ -311,8 +320,22 @@ class GameController extends GetxController {
   void _gameOver() {
     _gameTimer?.cancel();
     _goldenFoodCountdown?.cancel();
+    HapticFeedback.heavyImpact();
     status.value = GameStatus.over;
     _savePreferences();
+    _saveRecord();
     InterstitialAdManager.to.showAdIfAvailable();
   }
+
+  Future<void> _saveRecord() async {
+    if (score.value <= 0) return;
+    final record = SnakeRecord(
+      score: score.value,
+      date: DateTime.now(),
+      mode: wallMode.value ? 'wall' : 'normal',
+    );
+    await HiveService.to.addSnakeRecord(record);
+  }
+
+  List<SnakeRecord> getRecords() => HiveService.to.getSnakeRecords();
 }

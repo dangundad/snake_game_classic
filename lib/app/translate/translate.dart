@@ -83,6 +83,7 @@ class Languages extends Translations {
       'more_apps': 'More Apps',
 
       // App-specific
+      'recent_records': 'Recent Records',
       'app_name': 'Snake Game',
       'home_subtitle': 'Eat food, grow longer, don\'t hit yourself!',
       'home_play': 'Play',
@@ -172,6 +173,7 @@ class Languages extends Translations {
       'send_feedback': '피드백 보내기',
       'more_apps': '더 많은 앱',
       // 앱 전용
+      'recent_records': '최근 기록',
       'app_name': '스네이크 게임',
       'home_subtitle': 'Eat food, grow longer, don\'t hit yourself!',
       'home_play': '시작',

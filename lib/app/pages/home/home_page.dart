@@ -1,11 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
+import 'package:intl/intl.dart';
 
 import 'package:snake_game_classic/app/admob/ads_banner.dart';
 import 'package:snake_game_classic/app/admob/ads_helper.dart';
 import 'package:snake_game_classic/app/controllers/game_controller.dart';
 import 'package:snake_game_classic/app/data/enums/snake_skin.dart';
+import 'package:snake_game_classic/app/data/models/snake_record.dart';
 import 'package:snake_game_classic/app/routes/app_pages.dart';
 
 class HomePage extends GetView<GameController> {
@@ -49,6 +51,8 @@ class HomePage extends GetView<GameController> {
                       _WallModeToggle(controller: controller),
                       SizedBox(height: 18.h),
                       _SkinSelector(controller: controller),
+                      SizedBox(height: 18.h),
+                      _RecentRecords(controller: controller),
                       SizedBox(height: 24.h),
                     ],
                   ),
@@ -550,6 +554,109 @@ class _SkinCard extends StatelessWidget {
         ),
       );
     });
+  }
+}
+
+class _RecentRecords extends StatelessWidget {
+  final GameController controller;
+
+  const _RecentRecords({required this.controller});
+
+  @override
+  Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
+    final records = controller.getRecords();
+
+    if (records.isEmpty) return const SizedBox.shrink();
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          'recent_records'.tr,
+          style: TextStyle(
+            fontSize: 16.sp,
+            fontWeight: FontWeight.w700,
+            color: cs.onSurface,
+          ),
+        ),
+        SizedBox(height: 10.h),
+        Container(
+          decoration: BoxDecoration(
+            color: cs.surfaceContainerHigh.withValues(alpha: 0.72),
+            borderRadius: BorderRadius.circular(16.r),
+            border: Border.all(color: cs.outline.withValues(alpha: 0.2)),
+          ),
+          child: Column(
+            children: records.take(5).toList().asMap().entries.map((entry) {
+              final i = entry.key;
+              final record = entry.value;
+              final isLast = i == records.take(5).length - 1;
+              return Column(
+                children: [
+                  _RecordRow(record: record, rank: i + 1, cs: cs),
+                  if (!isLast) Divider(height: 1, color: cs.outline.withValues(alpha: 0.15)),
+                ],
+              );
+            }).toList(),
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+class _RecordRow extends StatelessWidget {
+  final SnakeRecord record;
+  final int rank;
+  final ColorScheme cs;
+
+  const _RecordRow({required this.record, required this.rank, required this.cs});
+
+  @override
+  Widget build(BuildContext context) {
+    final dateStr = DateFormat('MM/dd HH:mm').format(record.date);
+    final modeIcon = record.mode == 'wall' ? Icons.crop_free_rounded : Icons.autorenew_rounded;
+
+    return Padding(
+      padding: EdgeInsets.symmetric(horizontal: 14.w, vertical: 10.h),
+      child: Row(
+        children: [
+          SizedBox(
+            width: 24.w,
+            child: Text(
+              '#$rank',
+              style: TextStyle(
+                fontSize: 12.sp,
+                fontWeight: FontWeight.w700,
+                color: rank == 1 ? const Color(0xFFFFD600) : cs.onSurfaceVariant,
+              ),
+            ),
+          ),
+          SizedBox(width: 8.w),
+          Text(
+            '${record.score}',
+            style: TextStyle(
+              fontSize: 18.sp,
+              fontWeight: FontWeight.w800,
+              color: cs.onSurface,
+            ),
+          ),
+          SizedBox(width: 4.w),
+          Text(
+            'home_pts'.tr,
+            style: TextStyle(fontSize: 11.sp, color: cs.onSurfaceVariant),
+          ),
+          const Spacer(),
+          Icon(modeIcon, size: 14.r, color: cs.onSurfaceVariant),
+          SizedBox(width: 4.w),
+          Text(
+            dateStr,
+            style: TextStyle(fontSize: 11.sp, color: cs.onSurfaceVariant),
+          ),
+        ],
+      ),
+    );
   }
 }
 
