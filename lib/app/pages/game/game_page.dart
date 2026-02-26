@@ -1,4 +1,5 @@
 ﻿import 'package:flutter/material.dart';
+import 'package:flutter_animate/flutter_animate.dart' hide Direction;
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 
@@ -8,6 +9,7 @@ import 'package:snake_game_classic/app/data/enums/game_status.dart';
 import 'package:snake_game_classic/app/pages/game/widgets/d_pad.dart';
 import 'package:snake_game_classic/app/pages/game/widgets/game_board.dart';
 import 'package:snake_game_classic/app/pages/game/widgets/result_dialog.dart';
+import 'package:snake_game_classic/app/widgets/confetti_overlay.dart';
 
 class GamePage extends GetView<GameController> {
   const GamePage({super.key});
@@ -70,11 +72,24 @@ class _GamePageContentState extends State<_GamePageContent> {
         backgroundColor: widget.controller.skin.value.bgColor,
         appBar: _buildAppBar(context),
         body: SafeArea(
-          child: Column(
+          child: Stack(
             children: [
-              _ScoreBar(controller: widget.controller),
-              Expanded(child: _buildGameArea()),
-              _buildControls(),
+              Column(
+                children: [
+                  _ScoreBar(controller: widget.controller),
+                  Expanded(child: _buildGameArea()),
+                  _buildControls(),
+                ],
+              ),
+              Obx(() {
+                if (!widget.controller.showConfetti.value) {
+                  return const SizedBox.shrink();
+                }
+                return ConfettiOverlay(
+                  onComplete: () =>
+                      widget.controller.showConfetti.value = false,
+                );
+              }),
             ],
           ),
         ),
@@ -167,13 +182,21 @@ class _ScoreBar extends StatelessWidget {
       child: Row(
         children: [
           Expanded(
-            child: Obx(
-              () => _StatChip(
+            child: Obx(() {
+              final score = controller.score.value;
+              return _StatChip(
                 label: 'game_score'.tr,
-                value: '${controller.score.value}',
+                value: '$score',
                 color: Colors.white,
-              ),
-            ),
+              )
+                  .animate(key: ValueKey(score))
+                  .scale(
+                    begin: const Offset(1.3, 1.3),
+                    end: const Offset(1.0, 1.0),
+                    duration: 200.ms,
+                    curve: Curves.easeOut,
+                  );
+            }),
           ),
           SizedBox(width: 8.w),
           Obx(() {
