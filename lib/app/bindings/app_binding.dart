@@ -6,6 +6,7 @@
 
 import 'package:get/get.dart';
 import 'package:snake_game_classic/app/controllers/game_controller.dart';
+import 'package:snake_game_classic/app/services/app_rating_service.dart';
 import 'package:snake_game_classic/app/controllers/home_controller.dart';
 import 'package:snake_game_classic/app/controllers/setting_controller.dart';
 import 'package:snake_game_classic/app/services/hive_service.dart';
@@ -49,6 +50,11 @@ if (!Get.isRegistered<HistoryController>()) {
     }
 if (!Get.isRegistered<StatsController>()) {
       Get.lazyPut(() => StatsController());
-    }}
+    }
+
+    if (!Get.isRegistered<AppRatingService>()) {
+      Get.put(AppRatingService(), permanent: true);
+    }
+  }
 }
 
