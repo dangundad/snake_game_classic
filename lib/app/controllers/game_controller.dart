@@ -1,12 +1,13 @@
 import 'dart:async';
 import 'dart:math';
 
-import 'package:flutter/services.dart';
 import 'package:get/get.dart';
+import 'package:vibration/vibration.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 
 import 'package:snake_game_classic/app/admob/ads_interstitial.dart';
 import 'package:snake_game_classic/app/admob/ads_rewarded.dart';
+import 'package:snake_game_classic/app/controllers/setting_controller.dart';
 import 'package:snake_game_classic/app/data/enums/direction.dart';
 import 'package:snake_game_classic/app/data/enums/game_status.dart';
 import 'package:snake_game_classic/app/data/enums/snake_skin.dart';
@@ -59,6 +60,8 @@ class GameController extends GetxController {
   final isNewBest = false.obs;
   final showConfetti = false.obs;
 
+  bool _hasVibrator = false;
+
   // Internal game state
   final List<SnakePoint> snake = [];
   final Set<SnakePoint> _snakeSet = {};
@@ -79,6 +82,7 @@ class GameController extends GetxController {
   @override
   void onInit() {
     super.onInit();
+    Vibration.hasVibrator().then((v) => _hasVibrator = v);
     _loadPreferences();
     _initSnake();
     _spawnFood();
@@ -245,11 +249,11 @@ class GameController extends GetxController {
       ate = true;
       _foodsEaten++;
       score.value += _normalFoodScore;
-      HapticFeedback.lightImpact();
+      if (SettingController.to.hapticEnabled.value && _hasVibrator) Vibration.vibrate(duration: 50);
     } else if (_goldenFood != null && newHead == _goldenFood) {
       ate = true;
       score.value += _goldenFoodScore;
-      HapticFeedback.mediumImpact();
+      if (SettingController.to.hapticEnabled.value && _hasVibrator) Vibration.vibrate(duration: 100);
       _goldenFood = null;
       hasGoldenFood.value = false;
       _goldenFoodCountdown?.cancel();
@@ -277,7 +281,7 @@ class GameController extends GetxController {
     if (score.value > highScore.value) {
       highScore.value = score.value;
       if (!isNewBest.value) {
-        HapticFeedback.mediumImpact();
+        if (SettingController.to.hapticEnabled.value && _hasVibrator) Vibration.vibrate(duration: 100);
         showConfetti.value = true;
       }
       isNewBest.value = true;
@@ -356,7 +360,7 @@ class GameController extends GetxController {
   void _gameOver() {
     _gameTimer?.cancel();
     _goldenFoodCountdown?.cancel();
-    HapticFeedback.heavyImpact();
+    if (SettingController.to.hapticEnabled.value && _hasVibrator) Vibration.vibrate(duration: 200);
     status.value = GameStatus.over;
     _savePreferences();
     _saveRecord();
@@ -366,7 +370,7 @@ class GameController extends GetxController {
   void _winGame() {
     _gameTimer?.cancel();
     _goldenFoodCountdown?.cancel();
-    HapticFeedback.heavyImpact();
+    if (SettingController.to.hapticEnabled.value && _hasVibrator) Vibration.vibrate(duration: 200);
     showConfetti.value = true;
     if (score.value > highScore.value) {
       highScore.value = score.value;
