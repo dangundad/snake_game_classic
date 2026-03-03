@@ -270,7 +270,5 @@ class _SnakePainter extends CustomPainter {
   }
 
   @override
-  bool shouldRepaint(_SnakePainter oldDelegate) =>
-      oldDelegate.pulseValue != pulseValue ||
-      oldDelegate.skin != skin;
+  bool shouldRepaint(_SnakePainter oldDelegate) => true;
 }

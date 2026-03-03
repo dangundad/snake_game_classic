@@ -61,6 +61,7 @@ class GameController extends GetxController {
 
   // Internal game state
   final List<SnakePoint> snake = [];
+  final Set<SnakePoint> _snakeSet = {};
   late SnakePoint _food;
   SnakePoint? _goldenFood;
   Direction _direction = Direction.right;
@@ -181,9 +182,14 @@ class GameController extends GetxController {
 
   void _initSnake() {
     snake.clear();
-    snake.add(SnakePoint(rows ~/ 2, cols ~/ 2));
-    snake.add(SnakePoint(rows ~/ 2, cols ~/ 2 - 1));
-    snake.add(SnakePoint(rows ~/ 2, cols ~/ 2 - 2));
+    _snakeSet.clear();
+    final start = [
+      SnakePoint(rows ~/ 2, cols ~/ 2),
+      SnakePoint(rows ~/ 2, cols ~/ 2 - 1),
+      SnakePoint(rows ~/ 2, cols ~/ 2 - 2),
+    ];
+    snake.addAll(start);
+    _snakeSet.addAll(start);
   }
 
   void _startTimer() {
@@ -223,7 +229,13 @@ class GameController extends GetxController {
 
     final newHead = SnakePoint(newRow, newCol);
 
-    if (snake.sublist(0, snake.length - 1).contains(newHead)) {
+    // Self-collision: check against all segments except the tail.
+    // The tail will be removed this tick (unless food is eaten, but then
+    // newHead is on food, not on the tail). Use _snakeSet for O(1) lookup
+    // and manually check whether newHead happens to be the tail.
+    final tail = snake.last;
+    final hitsBody = _snakeSet.contains(newHead) && newHead != tail;
+    if (hitsBody) {
       _gameOver();
       return;
     }
@@ -234,9 +246,6 @@ class GameController extends GetxController {
       _foodsEaten++;
       score.value += _normalFoodScore;
       HapticFeedback.lightImpact();
-      _spawnFood();
-      _maybeSpawnGoldenFood();
-      _adjustSpeed();
     } else if (_goldenFood != null && newHead == _goldenFood) {
       ate = true;
       score.value += _goldenFoodScore;
@@ -246,8 +255,24 @@ class GameController extends GetxController {
       _goldenFoodCountdown?.cancel();
     }
 
+    // Update snake body
     snake.insert(0, newHead);
-    if (!ate) snake.removeLast();
+    _snakeSet.add(newHead);
+    if (!ate) {
+      final removed = snake.removeLast();
+      _snakeSet.remove(removed);
+    }
+
+    // Spawn new food AFTER updating snake so food cannot land on snake body
+    if (ate && newHead == _food) {
+      if (_isGridFull()) {
+        _winGame();
+        return;
+      }
+      _spawnFood();
+      _maybeSpawnGoldenFood();
+      _adjustSpeed();
+    }
 
     if (score.value > highScore.value) {
       highScore.value = score.value;
@@ -261,16 +286,30 @@ class GameController extends GetxController {
     tick.value++;
   }
 
+  bool _isGridFull() {
+    // Grid is full when snake occupies every cell
+    return _snakeSet.length >= rows * cols;
+  }
+
+  /// Collect all empty cells excluding snake, food, and golden food positions.
+  List<SnakePoint> _getEmptyCells({SnakePoint? excludeFood}) {
+    final occupied = <SnakePoint>{..._snakeSet};
+    if (excludeFood != null) occupied.add(excludeFood);
+    if (_goldenFood != null) occupied.add(_goldenFood!);
+    final empty = <SnakePoint>[];
+    for (int r = 0; r < rows; r++) {
+      for (int c = 0; c < cols; c++) {
+        final pt = SnakePoint(r, c);
+        if (!occupied.contains(pt)) empty.add(pt);
+      }
+    }
+    return empty;
+  }
+
   void _spawnFood() {
-    final random = Random();
-    SnakePoint candidate;
-    do {
-      candidate = SnakePoint(random.nextInt(rows), random.nextInt(cols));
-    } while (
-      snake.contains(candidate) ||
-      (_goldenFood != null && candidate == _goldenFood)
-    );
-    _food = candidate;
+    final empty = _getEmptyCells();
+    if (empty.isEmpty) return;
+    _food = empty[Random().nextInt(empty.length)];
   }
 
   void _maybeSpawnGoldenFood() {
@@ -279,12 +318,9 @@ class GameController extends GetxController {
   }
 
   void _spawnGoldenFood() {
-    final random = Random();
-    SnakePoint candidate;
-    do {
-      candidate = SnakePoint(random.nextInt(rows), random.nextInt(cols));
-    } while (snake.contains(candidate) || candidate == _food);
-    _goldenFood = candidate;
+    final empty = _getEmptyCells(excludeFood: _food);
+    if (empty.isEmpty) return;
+    _goldenFood = empty[Random().nextInt(empty.length)];
     hasGoldenFood.value = true;
     _goldenFoodTimer = _goldenFoodDuration;
     goldenFoodSecondsLeft.value = _goldenFoodDuration;
@@ -325,6 +361,20 @@ class GameController extends GetxController {
     _savePreferences();
     _saveRecord();
     InterstitialAdManager.to.showAdIfAvailable();
+  }
+
+  void _winGame() {
+    _gameTimer?.cancel();
+    _goldenFoodCountdown?.cancel();
+    HapticFeedback.heavyImpact();
+    showConfetti.value = true;
+    if (score.value > highScore.value) {
+      highScore.value = score.value;
+      isNewBest.value = true;
+    }
+    status.value = GameStatus.over;
+    _savePreferences();
+    _saveRecord();
   }
 
   Future<void> _saveRecord() async {
