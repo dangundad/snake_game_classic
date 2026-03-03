@@ -16,7 +16,7 @@ class HomePage extends GetView<GameController> {
 
   @override
   Widget build(BuildContext context) {
-    final cs = Theme.of(context).colorScheme;
+    final cs = Get.theme.colorScheme;
 
     return Scaffold(
       appBar: AppBar(
@@ -98,7 +98,7 @@ class _HeroSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final cs = Theme.of(context).colorScheme;
+    final cs = Get.theme.colorScheme;
 
     return Center(
       child: TweenAnimationBuilder<double>(
@@ -136,7 +136,7 @@ class _HeroSection extends StatelessWidget {
 class _AppSubtitle extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    final cs = Theme.of(context).colorScheme;
+    final cs = Get.theme.colorScheme;
 
     return TweenAnimationBuilder<double>(
       tween: Tween(begin: 0.88, end: 1),
@@ -168,7 +168,7 @@ class _HighScoreCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final cs = Theme.of(context).colorScheme;
+    final cs = Get.theme.colorScheme;
 
     return TweenAnimationBuilder<double>(
       tween: Tween(begin: 0, end: 1),
@@ -314,7 +314,7 @@ class _PlayButtonState extends State<_PlayButton> with SingleTickerProviderState
 
   @override
   Widget build(BuildContext context) {
-    final cs = Theme.of(context).colorScheme;
+    final cs = Get.theme.colorScheme;
 
     return AnimatedBuilder(
       animation: _pulseAnim,
@@ -379,7 +379,7 @@ class _SkinSelector extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final cs = Theme.of(context).colorScheme;
+    final cs = Get.theme.colorScheme;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -417,7 +417,7 @@ class _SkinCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final cs = Theme.of(context).colorScheme;
+    final cs = Get.theme.colorScheme;
 
     return Obx(() {
       final isSelected = controller.skin.value == skin;
@@ -525,7 +525,7 @@ class _RecentRecords extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final cs = Theme.of(context).colorScheme;
+    final cs = Get.theme.colorScheme;
     final records = controller.getRecords();
 
     if (records.isEmpty) return const SizedBox.shrink();
@@ -634,7 +634,7 @@ class _WallModeToggle extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final cs = Theme.of(context).colorScheme;
+    final cs = Get.theme.colorScheme;
     return Obx(
       () {
         final enabled = controller.wallMode.value;

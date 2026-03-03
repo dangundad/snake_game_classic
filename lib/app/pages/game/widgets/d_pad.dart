@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:get/get.dart';
 
 import 'package:snake_game_classic/app/data/enums/direction.dart';
 
@@ -60,7 +61,7 @@ class _DPadButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final cs = Theme.of(context).colorScheme;
+    final cs = Get.theme.colorScheme;
     return GestureDetector(
       onTap: onTap,
       child: Container(
