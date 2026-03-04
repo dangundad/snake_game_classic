@@ -101,6 +101,8 @@ class _GamePageContentState extends State<_GamePageContent> {
     return AppBar(
       backgroundColor: widget.controller.skin.value.bgColor,
       foregroundColor: Colors.white,
+      elevation: 0,
+      scrolledUnderElevation: 0,
       title: Obx(
         () => Text(
           'app_name'.tr,
@@ -130,6 +132,13 @@ class _GamePageContentState extends State<_GamePageContent> {
           );
         }),
       ],
+      bottom: PreferredSize(
+        preferredSize: const Size.fromHeight(2),
+        child: Container(
+          height: 2,
+          color: Colors.white.withValues(alpha: 0.2),
+        ),
+      ),
     );
   }
 
