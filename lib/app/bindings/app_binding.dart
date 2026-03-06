@@ -1,8 +1,6 @@
 ﻿// ================================================
 // DangunDad Flutter App - app_binding.dart Template
 // ================================================
-// snake_game_classic 移섑솚 ???ъ슜
-// mbti_pro ?꾨줈?뺤뀡 ?⑦꽩 湲곕컲
 
 import 'package:get/get.dart';
 import 'package:snake_game_classic/app/controllers/game_controller.dart';

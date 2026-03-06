@@ -1,8 +1,6 @@
 ﻿// ================================================
 // DangunDad Flutter App - app_pages.dart Template
 // ================================================
-// snake_game_classic 移섑솚 ???ъ슜
-// mbti_pro ?꾨줈?뺤뀡 ?⑦꽩 湲곕컲 (part ?⑦꽩)
 // ignore_for_file: constant_identifier_names
 
 import 'package:get/get.dart';
