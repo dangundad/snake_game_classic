@@ -81,15 +81,9 @@ class _GamePageContentState extends State<_GamePageContent> {
                   _buildControls(),
                 ],
               ),
-              Obx(() {
-                if (!widget.controller.showConfetti.value) {
-                  return const SizedBox.shrink();
-                }
-                return ConfettiOverlay(
-                  onComplete: () =>
-                      widget.controller.showConfetti.value = false,
-                );
-              }),
+              ConfettiOverlay(
+                controller: widget.controller.confettiController,
+              ),
             ],
           ),
         ),

@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:math';
 
+import 'package:confetti/confetti.dart';
 import 'package:get/get.dart';
 import 'package:vibration/vibration.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
@@ -58,7 +59,7 @@ class GameController extends GetxController {
   final hasGoldenFood = false.obs;
   final goldenFoodSecondsLeft = 0.obs;
   final isNewBest = false.obs;
-  final showConfetti = false.obs;
+  late final confettiController = ConfettiController(duration: const Duration(seconds: 2));
 
   bool _hasVibrator = false;
 
@@ -92,6 +93,7 @@ class GameController extends GetxController {
   void onClose() {
     _gameTimer?.cancel();
     _goldenFoodCountdown?.cancel();
+    confettiController.dispose();
     super.onClose();
   }
 
@@ -282,7 +284,7 @@ class GameController extends GetxController {
       highScore.value = score.value;
       if (!isNewBest.value) {
         if (SettingController.to.hapticEnabled.value && _hasVibrator) Vibration.vibrate(duration: 100);
-        showConfetti.value = true;
+        confettiController.play();
       }
       isNewBest.value = true;
     }
@@ -371,7 +373,7 @@ class GameController extends GetxController {
     _gameTimer?.cancel();
     _goldenFoodCountdown?.cancel();
     if (SettingController.to.hapticEnabled.value && _hasVibrator) Vibration.vibrate(duration: 200);
-    showConfetti.value = true;
+    confettiController.play();
     if (score.value > highScore.value) {
       highScore.value = score.value;
       isNewBest.value = true;
